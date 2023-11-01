@@ -1,4 +1,5 @@
 :- consult('gestionPersona.pl').
+:- consult('gestionProyecto.pl').
 
 menu :-
     repeat,
@@ -14,7 +15,7 @@ menu :-
     write("9. Salir"), nl,
     read(Opcion),
     (Opcion = 1 -> menuPersona;
-     Opcion = 2 -> write("Gestion de proyectos"), nl;
+     Opcion = 2 -> menuProyecto;
      Opcion = 3 -> write("Gestion de tareas."), nl;
      Opcion = 4 -> write("Buscar tareas"), nl;
      Opcion = 5 -> write("Recomendar personas."), nl;
@@ -24,7 +25,6 @@ menu :-
      Opcion = 9 -> write("Saliendo del programa."), nl, !).
 
 % ================ Submenu persona ============================================================
-consult('gestionPersona.pl').
 menuPersona :-
     repeat,
     write("Menú: "), nl,
@@ -34,4 +34,16 @@ menuPersona :-
     read(Opcion),
     (Opcion = 1 -> agregar_persona, menuPersona;
      Opcion = 2 -> mostrar_personas, menuPersona;
+     Opcion = 3 -> menu).
+     
+% ================ Submenu Proyecto ============================================================
+menuProyecto :-
+    repeat,
+    write("Menú: "), nl,
+    write("1. Ingresar proyecto"), nl,
+    write("2. Mostrar proyectos"), nl,
+    write("3. Volver"), nl,
+    read(Opcion),
+    (Opcion = 1 -> agregar_proyecto, menuProyecto;
+     Opcion = 2 -> mostrar_proyectos, menuProyecto;
      Opcion = 3 -> menu).
