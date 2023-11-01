@@ -3,6 +3,14 @@
 % Verificar si un proyecto existe en la base de conocimientos
 proyecto_existente(Proyecto) :- proyecto(Proyecto, _, _, _, _).
 
+% Tipos de tareas permitidos
+tipos_de_tarea_permitidos(['requerimientos', 'disenio', 'desarrollo', 'qa', 'fullstack', 'frontend', 'backend', 'administracion']).
+
+% Validar si un tipo de tarea está permitido
+tipo_de_tarea_permitido(Tipo) :-
+    tipos_de_tarea_permitidos(Tipos),
+    member(Tipo, Tipos).
+
 % Predicado para agregar una nueva tarea a la base de conocimientos.
 agregar_tarea(Proyecto, Nombre, Tipo) :-
     Estado = 'Pendiente',
@@ -15,7 +23,11 @@ agregar_tarea(Proyecto, Nombre, Tipo) :-
         read(Nombre),
         write('Ingrese el tipo de tarea: '),
         read(Tipo),
-        assertz(tarea(Proyecto, Nombre, Tipo, Estado, PersonaAsignada, FechaCierre))
+        (tipo_de_tarea_permitido(Tipo) ->
+            assertz(tarea(Proyecto, Nombre, Tipo, Estado, PersonaAsignada, FechaCierre))
+        ;
+            write('El tipo de tarea ingresado no está permitido.')
+        )
     ;
         write('El proyecto no existe en la base de conocimientos.')
     ).
