@@ -1,6 +1,17 @@
 :- consult('gestionPersona.pl').
 :- consult('gestionProyecto.pl').
+:- consult('gestionTareas.pl').
+:- consult('acciones.pl').
 
+cargar_desde_archivo(NombreArchivo) :-
+    open(NombreArchivo, read, Stream),
+    repeat,
+    read(Stream, Term),
+    ( Term == end_of_file -> ! ; assert(Term), fail ),
+    close(Stream).
+
+main :-
+    cargar_desde_archivo('bc.txt'), menu.
 menu :-
     repeat,
     write("Menú: "), nl,
@@ -16,13 +27,23 @@ menu :-
     read(Opcion),
     (Opcion = 1 -> menuPersona;
      Opcion = 2 -> menuProyecto;
-     Opcion = 3 -> write("Gestion de tareas."), nl;
-     Opcion = 4 -> write("Buscar tareas"), nl;
-     Opcion = 5 -> write("Recomendar personas."), nl;
-     Opcion = 6 -> write("Asignar a tarea."), nl;
-     Opcion = 7 -> write("cerrar tarea."), nl;
+     Opcion = 3 -> menuTarea;
+     Opcion = 4 -> buscaTarea, menu;
+     Opcion = 5 -> recomendar_personas, menu;
+     Opcion = 6 -> asignar_tarea, menu;
+     Opcion = 7 -> cerrar_tarea, menu;
      Opcion = 8 -> write("Estadisticas."), nl;
-     Opcion = 9 -> write("Saliendo del programa."), nl, !).
+     Opcion = 9 -> guardar_en_archivo('bc.txt'), write("Saliendo del programa."), nl, !).
+
+guardar_en_archivo(NombreArchivo) :-
+    tell(NombreArchivo),
+    telling(OldStream),
+    tell(NombreArchivo),
+    listing(proyecto/5), % Listar hechos del predicado 'proyecto/5'
+    listing(tarea/6),    % Listar hechos del predicado 'tarea/6'
+    listing(persona/5),  % Listar hechos del predicado 'persona/5'
+    tell(OldStream),    % Restaurar el flujo de escritura anterior
+    told.
 
 % ================ Submenu persona ============================================================
 menuPersona :-
@@ -47,3 +68,16 @@ menuProyecto :-
     (Opcion = 1 -> agregar_proyecto, menuProyecto;
      Opcion = 2 -> mostrar_proyectos, menuProyecto;
      Opcion = 3 -> menu).
+     
+% ================ Submenu Tareas ============================================================
+menuTarea :-
+    repeat,
+    write("Menú: "), nl,
+    write("1. Ingresar Tarea"), nl,
+    write("2. Mostrar Tareas"), nl,
+    write("3. Volver"), nl,
+    read(Opcion),
+    (Opcion = 1 -> agregar_tarea(_Proyecto, _Nombre, _Tipo), menuTarea;
+     Opcion = 2 -> mostrar_tareas, menuTarea;
+     Opcion = 3 -> menu).
+     

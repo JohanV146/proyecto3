@@ -4,7 +4,7 @@
 proyecto_existente(Proyecto) :- proyecto(Proyecto, _, _, _, _).
 
 % Tipos de tareas permitidos
-tipos_de_tarea_permitidos(['requerimientos', 'disenio', 'desarrollo', 'qa', 'fullstack', 'frontend', 'backend', 'administracion']).
+tipos_de_tarea_permitidos(['requerimientos', 'diseno', 'desarrollo', 'qa', 'fullstack', 'frontend', 'backend', 'administracion']).
 
 % Validar si un tipo de tarea está permitido
 tipo_de_tarea_permitido(Tipo) :-
