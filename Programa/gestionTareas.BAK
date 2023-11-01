@@ -1,0 +1,30 @@
+:- dynamic(tarea/6).  % Hecho dinámico para tareas: proyecto, nombre, tipo, estado, persona_asignada, fecha_cierre.
+
+% Predicado para agregar una nueva tarea a la base de conocimientos.
+agregar_tarea(Proyecto, Nombre, Tipo) :-
+    Estado = 'Pendiente',
+    PersonaAsignada = 'Sin asignar',
+    FechaCierre = 'Sin fecha',
+    assertz(tarea(Proyecto, Nombre, Tipo, Estado, PersonaAsignada, FechaCierre)).
+
+% Predicado para mostrar todas las tareas almacenadas en la base de conocimientos.
+mostrar_tareas :-
+    tarea(Proyecto, Nombre, Tipo, Estado, PersonaAsignada, FechaCierre),
+    write('Proyecto: '), write(Proyecto), nl,
+    write('Nombre de la Tarea: '), write(Nombre), nl,
+    write('Tipo de Tarea: '), write(Tipo), nl,
+    write('Estado: '), write(Estado), nl,
+    write('Persona Asignada: '), write(PersonaAsignada), nl,
+    write('Fecha de Cierre: '), write(FechaCierre), nl,
+    nl,
+    fail.
+mostrar_tareas.
+
+% Ejemplo de uso:
+% Agregar tareas
+agregar_tarea('Proyecto A', 'Tarea 1', 'Desarrollo').
+agregar_tarea('Proyecto B', 'Tarea 2', 'QA').
+agregar_tarea('Proyecto C', 'Tarea 3', 'Diseño').
+
+% Mostrar tareas
+mostrar_tareas.

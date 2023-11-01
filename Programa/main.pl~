@@ -1,0 +1,26 @@
+% Menú principal
+menu :-
+    repeat,
+    write("Menú: "), nl,
+    write("1. Gestión de personas"), nl,
+    write("2. Gestión de proyectos"), nl,
+    write("3. Gestión de tareas"), nl,
+    write("4. Buscar tareas libres"), nl,
+    write("5. Recomendar persona"), nl,
+    write("6. Asignar a tarea"), nl,
+    write("7. Cerrar tarea"), nl,
+    write("8. Estadísticas"), nl,
+    write("9. Salir"), nl,
+    read(Opcion),
+    (Opcion = 1 -> write("Gestion de personas."), nl, fail.
+     Opcion = 2 -> write("Gestion de proyectos"), nl, fail.
+     Opcion = 3 -> write("Gestion de tareas."), nl, fail.
+     Opcion = 4 -> write("Buscar tareas"), nl, fail.
+     Opcion = 5 -> write("Recomendar personas."), nl, fail.
+     Opcion = 6 -> write("Asignar a tarea."), nl, fail.
+     Opcion = 7 -> write("cerrar tarea."), nl, fail.
+     Opcion = 8 -> write("Estadisticas."), nl, fail.
+     Opcion = 9 -> write("Saliendo del programa."), nl, !).
+
+% Iniciar el programa llamando al menú
+:- menu.

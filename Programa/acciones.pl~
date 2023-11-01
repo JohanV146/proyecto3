@@ -1,0 +1,70 @@
+% Predicado para buscar todas las tareas pendientes en la base de conocimientos.
+buscar_tareas_pendientes :-
+    tarea(_, Nombre, _, 'Pendiente', PersonaAsignada, FechaCierre),
+    write('Nombre de la Tarea: '), write(Nombre), nl,
+    write('Estado: Pendiente'), nl,
+    write('Persona Asignada: '), write(PersonaAsignada), nl,
+    write('Fecha de Cierre: '), write(FechaCierre), nl,
+    nl,
+    fail.
+buscar_tareas_pendientes.
+
+% Predicado para buscar tareas libres que una persona podría desarrollar.
+buscar_tareas_libres_para_persona(Persona) :-
+    persona(Persona, _, _, _, TiposTareasPersona),
+    tarea(_, Nombre, TipoTarea, 'Pendiente', 'Sin asignar', _),
+    member(TipoTarea, TiposTareasPersona),
+    write('Nombre de la Tarea: '), write(Nombre), nl,
+    write('Tipo de Tarea: '), write(TipoTarea), nl,
+    nl,
+    fail.
+buscar_tareas_libres_para_persona(_).
+
+% Ejemplo de uso:
+% Mostrar todas las tareas pendientes
+buscar_tareas_pendientes.
+
+% Mostrar tareas libres para una persona específica (por ejemplo, 'Juan')
+buscar_tareas_libres_para_persona('Juan').
+
+% ------------------------------------------------------------------------
+
+% Predicado para recomendar personas para un proyecto y una tarea específica.
+recomendar_personas(Proyecto, Tarea) :-
+    findall(Persona-Puntuacion-TiposTareas, calcular_puntuacion(Proyecto, Tarea, Persona, Puntuacion, TiposTareas), Resultados),
+    sort(2, @>=, Resultados, SortedResults),
+    mostrar_resultados_ordenados(SortedResults).
+
+% Predicado para calcular la puntuación de una persona para un proyecto y una tarea.
+calcular_puntuacion(Proyecto, Tarea, Persona, PuntuacionTotal, TiposTareas) :-
+    persona(Persona, _, _, Rating, TiposTareasPersona),
+    findall(TipoTarea, tarea(Proyecto, _, TipoTarea, _, Persona, _), TareasPorProyecto),
+    contar_repeticiones(TipoTarea, TiposTareasPersona, DesarrolloPrevio),
+    contar_repeticiones(Tarea, TareasPorProyecto, AfinidadProyecto),
+    contar_tareas_abiertas(Persona, TareasAbiertas),
+    PuntuacionTotal is DesarrolloPrevio * 2 + AfinidadProyecto * 5 + Rating - TareasAbiertas,
+    TiposTareas = TiposTareasPersona.
+
+% Predicado para contar las repeticiones de un elemento en una lista.
+contar_repeticiones(_, [], 0).
+contar_repeticiones(Elemento, [Elemento | Resto], Cuenta) :-
+    contar_repeticiones(Elemento, Resto, CuentaResto),
+    Cuenta is CuentaResto + 1.
+contar_repeticiones(Elemento, [_ | Resto], Cuenta) :-
+    contar_repeticiones(Elemento, Resto, Cuenta).
+
+% Predicado para contar tareas abiertas (con estado pendiente) para una persona.
+contar_tareas_abiertas(Persona, TareasAbiertas) :-
+    findall(1, tarea(_, _, _, 'Pendiente', Persona, _), Tareas),
+    length(Tareas, TareasAbiertas).
+
+% Predicado para mostrar los resultados ordenados de mayor a menor puntuación.
+mostrar_resultados_ordenados([]).
+mostrar_resultados_ordenados([Persona-Puntuacion-TiposTareas | Resto]) :-
+    write('Nombre: '), write(Persona), nl,
+    write('Puntuación: '), write(Puntuacion), nl,
+    write('Tipos de Tareas: '), write(TiposTareas), nl,
+    nl,
+    mostrar_resultados_ordenados(Resto).
+
+recomendar_personas('Proyecto A', 'Tarea 1').

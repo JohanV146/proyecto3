@@ -1,0 +1,22 @@
+:- dynamic(persona/5).  % Hecho dinámico para personas: nombre, puesto, costo, rating, lista de tareas.
+:- dynamic(tarea_asignada/4).  % Hecho dinámico para tareas asignadas: nombre_persona, proyecto, nombre_tarea, estado.
+
+%Predicado para agregar una nueva persona a la base de conocimientos.
+agregar_persona :-
+    write('Ingrese el nombre de la persona: '),
+    read(Nombre),
+
+    write('Ingrese el puesto de la persona: '),
+    read(Puesto),
+
+    write('Ingrese el costo por tarea de la persona: '),
+    read(Costo),
+
+    write('Ingrese el rating de la persona: '),
+    read(Rating),
+
+    write('Ingrese las tareas de la persona (separadas por comas): '),
+    read(Tareas),
+
+    assertz(persona(Nombre, Puesto, Costo, Rating, Tareas)),
+    write('¡La persona ha sido agregada a la base de conocimientos!'), nl.
