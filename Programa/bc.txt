@@ -1,14 +1,19 @@
 :- dynamic proyecto/5.
 
 proyecto(customeServer, johanCompany, 12345, "23/10/2023", "30/10/2023").
+proyecto(serverI, johanCompany, 12345, "23/11/2023", "23/12/2023").
 
 :- dynamic tarea/6.
 
 tarea(customeServer, nose, diseno, 'Pendiente', 'Sin asignar', 'Sin fecha').
-tarea(customeServer, backend, backend, 'Pendiente', 'Sin asignar', 'Sin fecha').
-tarea(customeServer, nel, qa, 'Pendiente', 'Sin asignar', 'Sin fecha').
+tarea(customeServer, nel, qa, 'Activa', johan1, 'Sin fecha').
+tarea(serverI, lol, qa, 'Activa', johan1, 'Sin fecha').
+tarea(customeServer, backend, backend, 'Finalizada', 'Sin asignar', "25/11/2023").
 
 :- dynamic persona/5.
 
-persona(johan, desarrollador, 123, 5, [qa, diseno]).
+persona(johan1, desarrollador, 123, 5, [qa, diseno]).
+persona(johan2, desarrollador, 45, 4, [qa]).
+persona(johan3, desarrollador, 23, 3, [desarrollo, diseno]).
+persona(johan4, desarrollador, 12378, 2, [qa, diseno]).
 

@@ -1,10 +1,14 @@
+:- dynamic(puntaje/2).
+
 % ============ Buscar tareas ===============================================================================================================================
+
+buscaTarea :-
+    mostrar_tareas_pendientes, buscar_tareas_libres_para_persona.
 
 % Predicado para buscar todas las tareas pendientes en la base de conocimientos.
 mostrar_tareas_pendientes :-
     tarea(Proyecto, Nombre, Tipo, 'Pendiente', PersonaAsignada, FechaCierre),
     format('Proyecto: ~w, Tarea: ~w, Tipo: ~w, Persona Asignada: ~w, Fecha de Cierre: ~w~n', [Proyecto, Nombre, Tipo, PersonaAsignada, FechaCierre]),
-    buscar_tareas_libres_para_persona,
     fail.
 mostrar_tareas_pendientes.
 
@@ -29,78 +33,86 @@ buscar_tareas_libres_para_persona :-
 buscar_tareas_libres_para_persona.
 
 % ================ Recomendar =========================================================================================================
+% ----- declaracion para el manejo de recomendaciones -----------------------------------
 
 % Verificar si un proyecto existe en la base de conocimientos
-proyecto_existentel(Proyecto) :- proyecto(Proyecto, _, _, _, _).
+proyecto_existenten(Proyecto) :- proyecto(Proyecto, _, _, _, _).
 
 % Verificar si una tarea existe en la base de conocimientos para un proyecto
-tarea_existentel(Proyecto, Tarea) :- tarea(Proyecto, Tarea, _, _, _, _).
+tarea_existenten(Proyecto, Tarea) :- tarea(Proyecto, Tarea, _, _, _, _).
 
-obtener_nombre_proyectol(Proyecto) :-
+obtener_nombre_proyecton(Proyecto) :-
     write('Ingrese el nombre del proyecto: '),
     read(Proyecto).
 
-obtener_nombre_tareal(Tarea) :-
+obtener_nombre_tarea(Tarea) :-
     write('Ingrese el nombre de la tarea: '),
     read(Tarea).
 
-personas_recomendadas_para_tarea :-
-    obtener_nombre_proyectol(Proyecto),
-    obtener_nombre_tareal(Tarea),
-    (   proyecto_existentel(Proyecto), tarea_existentel(Proyecto, Tarea) ->
+% Lógica para obtener personas recomendadas para una tarea en un proyecto
+recomendar_personas :-
+    obtener_nombre_proyecton(Proyecto),
+    obtener_nombre_tarea(Tarea),
+    (   proyecto_existenten(Proyecto), tarea_existenten(Proyecto, Tarea) ->
         personas_recomendadas(Proyecto, Tarea)
     ;
         write('El proyecto o la tarea no existen en la base de conocimientos.')
     ).
     
+extraerTipo(Tarea, Res):-
+    tarea(_, Tarea, Tipo, _, _, _),
+    Res = Tipo.
+
 tareas_activas_persona(Persona, TareasActivas) :-
     findall(Tarea, tarea(_, Tarea, _, 'Pendiente', Persona, _), TareasActivas).
 
-% Obtener la puntuación de Desarrollo Previo para una persona y un tipo de tarea
 puntuacion_desarrollo_previo(Persona, TipoTarea, Puntuacion) :-
     findall(Tarea, tarea(_, Tarea, TipoTarea, _, Persona, _), Tareas),
     length(Tareas, NumeroTareas),
     Puntuacion is NumeroTareas * 2.
 
-% Obtener la puntuación de Afinidad por Proyecto para una persona y un proyecto
 puntuacion_afinidad_proyecto(Persona, Proyecto, Puntuacion) :-
     tarea(Proyecto, _, _, _, Persona, _),
     Puntuacion is 5;
     Puntuacion is 0.
 
-% Obtener la puntuación total para una persona
 puntuacion_total(Persona, Proyecto, Tarea, PuntuacionTotal) :-
+    extraerTipo(Tarea, Tipo),
+    write('paso1'),
     persona(Persona, _, _, Rating, TiposTareasPersona),
-    member(Tarea, TiposTareasPersona),
+    write(Tipo),
+    member(Tipo, TiposTareasPersona),
+    write('paso1'),
     puntuacion_desarrollo_previo(Persona, Tarea, PuntuacionDesarrollo),
     puntuacion_afinidad_proyecto(Persona, Proyecto, PuntuacionAfinidad),
-    tareas_activas_persona(Persona, TareasActivas),
+    tareas_activas_persona(Persona, _TareasActivas),
     length(TareasActivas, TareasAbiertas),
-    PuntuacionTotal is PuntuacionDesarrollo + PuntuacionAfinidad + Rating - (TareasAbiertas * 3).
+    PuntuacionTotal is PuntuacionDesarrollo + PuntuacionAfinidad + Rating - (TareasAbiertas * 3),
+    assertz(puntaje(Persona, PuntajeTotal)),
+    not (true).
+puntuacion_total(_, _, _, _):- write('paso2').
 
-% Obtener la lista de personas recomendadas para un proyecto y una tarea
 personas_recomendadas(Proyecto, Tarea) :-
-    findall([Persona, Puntuacion, TiposTareasPersona], puntuacion_total(Persona, Proyecto, Tarea, Puntuacion, TiposTareasPersona), PersonasConPuntuacion),
-    sort(2, @>=, PersonasConPuntuacion, PersonasOrdenadas),
-    mostrar_personas_ordenadas(PersonasOrdenadas).
+    puntuacion_total(Persona, Proyecto, Tarea, Puntuacion),
+    mostrar_Puntajes.
 
-    
-% Mostrar la lista de personas ordenadas por puntuación
-mostrar_personas_ordenadas([]).
-mostrar_personas_ordenadas([[Persona, Puntuacion, TiposTareasPersona] | Resto]) :-
-    write('Nombre: '), write(Persona), nl,
-    write('Puntuacion: '), write(Puntuacion), nl,
-    write('Tipos de tareas: '), write(TiposTareasPersona), nl,
+mostrar_Puntajes :-
+    puntaje(Nombre, PuntajeTotal),
+    write('Nombre: '), write(Nombre), nl,
+    write('Puntaje: '), write(PuntajeTotal), nl,
     nl,
-    mostrar_personas_ordenadas(Resto).
-
+    fail.
+mostrar_Puntajes.
 % ================ Asignar =========================================================================================================
+tarea_sin_asignar(Proyecto, Tarea) :-
+    tarea(Proyecto, Tarea, _, 'Pendiente', 'Sin asignar', _).
+
 % Asignar una tarea a una persona
 asignar_tarea :-
-    obtener_nombre_proyectol(Proyecto),
-    obtener_nombre_tareal(Tarea),
+    obtener_nombre_proyecton(Proyecto),
+    obtener_nombre_tarea(Tarea),
     obtener_nombre_existente(Persona),
-    (   proyecto_existente(Proyecto), tarea_existente(Proyecto, Tarea), persona_existente(Persona) ->
+    (   proyecto_existenten(Proyecto), tarea_existenten(Proyecto, Tarea) ->
         (   tarea_sin_asignar(Proyecto, Tarea) ->
             retract(tarea(Proyecto, Tarea, Tipo, 'Pendiente', 'Sin asignar', Fecha)),
             assertz(tarea(Proyecto, Tarea, Tipo, 'Activa', Persona, Fecha)),
@@ -113,18 +125,37 @@ asignar_tarea :-
     ).
 
 % ------------------------------------------------------------------------
+cerrar_tarea :-
+    obtener_nombre_proyectol(Proyecto),
+    obtener_nombre_tareal(Tarea),
+    obtener_fecha(FechaFin),
+    (   tarea(Proyecto, Tarea, _, 'Pendiente', _, _) ->
+        retract(tarea(Proyecto, Tarea, Tipo, 'Pendiente', Asignada, 'Sin fecha')),
+        assertz(tarea(Proyecto, Tarea, Tipo, 'Finalizada', Asignada, FechaFin)),
+        write('La tarea se ha cerrado y marcado como finalizada.')
+    ;
+        write('La tarea ya está cerrada o no existe en la base de conocimientos.')
+    ).
 
-% Predicado para asignar una tarea a una persona en un proyecto.
-asignar_tarea_a_persona(Proyecto, Tarea, Persona) :-
-    % Verificar si la tarea está pendiente y sin asignar a alguien.
-    tarea(Proyecto, Tarea, _, 'Pendiente', 'Sin asignar', _),
-    % Asignar la tarea a la persona especificada.
-    retract(tarea(Proyecto, Tarea, Tipo, 'Pendiente', 'Sin asignar', FechaCierre)),
-    assertz(tarea(Proyecto, Tarea, Tipo, 'Activa', Persona, FechaCierre)),
-    write('La tarea '), write(Tarea),
-    write(' en el proyecto '), write(Proyecto),
-    write(' ha sido asignada a '), write(Persona), nl.
+obtener_nombre_proyectol(Proyecto) :-
+    write('Ingrese el nombre del proyecto: '),
+    read(Proyecto).
 
-% Ejemplo de uso:
-% Asignar una tarea a una persona en un proyecto.
-asignar_tarea_a_persona('Proyecto A', 'Tarea 1', 'Juan').
+obtener_nombre_tareal(Tarea) :-
+    write('Ingrese el nombre de la tarea: '),
+    read(Tarea).
+
+obtener_fecha(FechaFin) :-
+    repeat,
+    write('Ingrese la fecha Final (en formato dd/mm/aaaa): '),
+    read_line_to_codes(user_input, Codes),
+    string_codes(String, Codes),
+    split_string(String, "/", "", [D, M, A]),
+    number_string(Dia, D),
+    number_string(Mes, M),
+    number_string(Anio, A),
+    (   fecha_valida(Anio, Mes, Dia) ->
+        FechaFin = String
+    ;   write('Fecha ingresada inválida. Intente nuevamente.'), nl,
+        obtener_fecha_fin(FechaFin)
+    ).

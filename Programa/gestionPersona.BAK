@@ -1,6 +1,5 @@
 :- dynamic(persona/5).  % Hecho dinámico para personas: nombre, puesto, costo, rating, lista de tareas.
-:- dynamic(tarea_asignada/4).  % Hecho dinámico para tareas asignadas: nombre_persona, proyecto, nombre_tarea, estado.
-    
+
 % ============= pide el nombre de la persona =======================================================================
 obtener_nombre(Nombre) :-
     write('Ingrese el nombre de la persona: '),
@@ -97,9 +96,20 @@ mostrar_personas :-
     persona(Nombre, Puesto, Costo, Rating, Tareas),
     write('Nombre: '), write(Nombre), nl,
     write('Puesto: '), write(Puesto), nl,
-    write('Rating: '), write(Costo), nl,
-    write('Costo: '), write(Rating), nl,
-    write('Tareas: '), write(Tareas), nl,
+    write('Costo: '), write(Costo), nl,
+    write('Rating: '), write(Rating), nl,
+    write('Tareas:'), nl,
+    mostrar_tareas_persona(Nombre, Tareas),
     nl,
     fail.
 mostrar_personas.
+
+mostrar_tareas_persona(_, []) :- !.  % Agrega un corte para evitar elecciones innecesarias
+mostrar_tareas_persona(Nombre, [Tarea | Resto]) :-
+    tarea(Proyecto, NombreT, _, Estado, Nombre, _),
+    write('  Proyecto: '), write(Proyecto), nl,
+    write('  Tarea: '), write(NombreT), nl,
+    write('  Estado: '), write(Estado), nl,
+    nl,
+    mostrar_tareas_persona(Nombre, Resto).
+

@@ -14,14 +14,16 @@ agregar_tarea(Proyecto, Nombre, Tipo) :-
     PersonaAsignada = 'Sin asignar',
     FechaCierre = 'Sin fecha',
     write('Ingrese el nombre del proyecto: '),
-    read_line_to_string(user_input, Proyecto),
+    read_line_to_string(user_input, ProyectoStr),
+    atom_string(Proyecto, ProyectoStr),
     (
         proyecto_existente(Proyecto) ->
         write('Ingrese el nombre de la tarea: '),
-        read_line_to_string(user_input, Nombre),
+        read_line_to_string(user_input, NombreStr),
+        atom_string(Nombre, NombreStr),
         write('Ingrese el tipo de tarea: '),
-        read_line_to_string(user_input, Tipo1),
-        atom_string(Tipo, Tipo1),
+        read_line_to_string(user_input, TipoStr),
+        atom_string(Tipo, TipoStr),
         (tipo_de_tarea_permitido(Tipo) ->
             assertz(tarea(Proyecto, Nombre, Tipo, Estado, PersonaAsignada, FechaCierre))
         ;

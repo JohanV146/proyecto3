@@ -64,7 +64,7 @@ obtener_fecha_inicio(FechaInicio) :-
     (   fecha_valida(Anio, Mes, Dia) ->
         FechaInicio = StringI
     ;   write('Fecha ingresada inválida. Intente nuevamente.'), nl,
-        obtener_fecha_inicio(FechaInicio)
+        obtener_fecha_fin(FechaInicio)
     ).
 
 obtener_fecha_fin(FechaFin) :-
